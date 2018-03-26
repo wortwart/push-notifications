@@ -1,0 +1,50 @@
+body {
+	font-family: Verdana, Arial, sans-serif;
+	width: 50em;
+	margin: auto;
+	text-align: center;
+}
+
+label {
+	display: inline-block;
+	margin-bottom: 1em;
+	text-align: left;
+}
+
+label > input, button {
+	margin: .25em 0 1em;
+}
+
+input, button {
+	padding: .5em;
+	line-height: 1.5em;
+	font-size: large;
+}
+
+input, output, button {
+	display: block;
+	margin: 1em auto;
+}
+
+input:not([type="submit"]), output {
+	display: block;
+	width: 50em;
+	text-align: left;
+	font-family: monospace;
+	font-size: 11px;
+}
+
+output {
+	max-width: 80em;
+	padding: 2em;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	background-color: #ccc;
+}
+
+button {
+	width: 20em;
+	margin: 3em auto;
+	padding: .5em;
+	font-size: large;
+}

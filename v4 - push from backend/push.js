@@ -1,10 +1,12 @@
 'use strict';
 
-const buttonTexts = [
+const btnTexts = [
 	'Push-Nachrichten abonnieren',
-	'Push-Abonnement beenden'
+	'Push-Abonnement beenden',
+	'Push-Abonnement: Fehler'
 ];
-
+const btn = document.querySelector('button');
+const pubkey = document.querySelector('output');
 let worker = null;
 let isSubscribed = null;
 
@@ -13,21 +15,17 @@ if ('serviceWorker' in navigator && 'PushManager' in window) {
 	navigator.serviceWorker.register('worker.js')
 	.then(reg => {
 		worker = reg;
-		button.disabled = false;
+		btn.disabled = false;
 		// Do we have a subscription?
 		worker.pushManager.getSubscription()
 		.then(subscription => {
 			if (subscription === null) {	// not subscribed
 				isSubscribed = false;
-				button.textContent = buttonTexts[0];
-				localStorage.setItem('pushAuth', '');
+				btn.textContent = btnTexts[0];
 			} else {	// already subscribed
 				isSubscribed = true;
-				button.textContent = buttonTexts[1];
-				// use local storage to save and restore auth data
-				pushAuth.textContent = localStorage.getItem('pushAuth');
+				btn.textContent = btnTexts[1];
 			}
-			pubkey.value = localStorage.getItem('pubKey');
 		});
 	})
 	.catch(err => console.error('Fehler beim Registrieren des ServiceWorkers', err));
@@ -36,42 +34,63 @@ if ('serviceWorker' in navigator && 'PushManager' in window) {
 }
 
 // After button click
-button.addEventListener('click', ev => {
+btn.addEventListener('click', ev => {
 	ev.preventDefault();
 	if (worker === null) return;
 	if (isSubscribed) {
 		// Unsubscribe
 		worker.pushManager.getSubscription()
 		.then(subscription => {
-			if (subscription)
-				return subscription.unsubscribe();
+			if (!subscription) return;
+			const xhr = new XMLHttpRequest();
+			xhr.onreadystatechange = ev => {
+				if (xhr.readyState === 4 && xhr.status === 200)
+					console.log(xhr.responseText + ' Datensatz gelöscht');
+			}
+			xhr.open('POST', 'subscribe.php');
+			xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+			xhr.send('endpoint=' + encodeURIComponent(subscription.endpoint));
+			return subscription.unsubscribe();
 		})
 		.catch(err => console.error('Fehler beim Abo-Kündigen', err))
 		.then(() => {
-			pushAuth.textContent = '';
-			localStorage.setItem('pushAuth', '');
-			button.textContent = buttonTexts[0];
+			btn.textContent = btnTexts[0];
 			isSubscribed = false;
 		});
 	} else {
 		// Subscribe
-		if (!pubkey.value) {
-			alert('Geben Sie einen Schlüssel für den Anwendungsserver an!');
-			return;
-		}
-		localStorage.setItem('pubKey', pubkey.value);
 		worker.pushManager.subscribe({
 			userVisibleOnly: true,
-			applicationServerKey: urlB64ToUint8Array(pubkey.value)
+			applicationServerKey: urlB64ToUint8Array(pubkey)
 		})
 		.catch(err => console.error('Fehler beim Abonnieren', err))
 		.then(subscription => {
 			const json = JSON.stringify(subscription);
-			pushAuth.textContent = json;
-			localStorage.setItem('pushAuth', json);
-			button.textContent = buttonTexts[1];
-			isSubscribed = true;
-		})
+			const xhr = new XMLHttpRequest();
+			xhr.onreadystatechange = ev => {
+				if (xhr.readyState === 4 && xhr.status === 200) {
+					if (parseInt(xhr.responseText)) {
+						console.log('Push-Abo #' + xhr.responseText + ' angelegt');
+						btn.textContent = btnTexts[1];
+						isSubscribed = true;
+					} else {
+						console.error(xhr.responseText);
+						btn.textContent = btnTexts[2];
+						subscription.unsubscribe();
+						isSubscribed = false;
+					}
+				}
+			}
+			xhr.onerror = ev => {
+				console.error(ev);
+				btn.textContent = btnTexts[2];
+				subscription.unsubscribe();
+				isSubscribed = false;
+			}
+			xhr.open('POST', 'subscribe.php');
+			xhr.setRequestHeader('Content-type', 'application/json');
+			xhr.send(json);
+		});
 	}
 });
 
