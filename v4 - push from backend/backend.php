@@ -26,9 +26,9 @@
 		</form>
 <?php } else {
 
-	if ($_POST['name'] !== 'wortwart')
+	if ($_POST['name'] !== 'login')
 		exit;
-	if ($_POST['password'] !== 'GeheimesPaßw0rt')
+	if ($_POST['password'] !== 'SuperSecretPasswrd')
 		exit;
 
 	$dbh = require './dbconnect.php';
