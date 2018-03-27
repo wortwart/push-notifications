@@ -58,9 +58,7 @@ function urlB64ToUint8(b64String) {
   const b64 = (b64String + padding)
     .replace(/\-/g, '+')
     .replace(/_/g, '/');
-  const raw = atob(b64);
-  const outputArray = new Uint8Array(raw.length);
-  for (let i = 0; i < raw.length; ++i)
-    outputArray[i] = raw.charCodeAt(i);
-  return outputArray;
+  return new Uint8Array(atob(b64)
+    .split('')
+    .map(el => el.charCodeAt(el)));
 }
