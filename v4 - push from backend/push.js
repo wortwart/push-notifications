@@ -94,15 +94,12 @@ btn.addEventListener('click', ev => {
 	}
 });
 
-function urlB64ToUint8Array(base64String) {
-	// Convert URL safe Base64 to typed array with byte values
-	const padding = '='.repeat((4 - base64String.length % 4) % 4);
-	const base64 = (base64String + padding)
-		.replace(/\-/g, '+')
-		.replace(/_/g, '/');
-	const rawData = window.atob(base64);
-	const outputArray = new Uint8Array(rawData.length);
-	for (let i = 0; i < rawData.length; ++i)
-		outputArray[i] = rawData.charCodeAt(i);
-	return outputArray;
+function urlB64ToUint8(b64String) {
+  const padding = '='.repeat((4 - b64String.length % 4) % 4);
+  const b64 = (b64String + padding)
+    .replace(/\-/g, '+')
+    .replace(/_/g, '/');
+  return new Uint8Array(atob(b64)
+    .split('')
+    .map(el => el.charCodeAt(el)));
 }
