@@ -61,7 +61,7 @@ btn.addEventListener('click', ev => {
 		// Subscribe
 		worker.pushManager.subscribe({
 			userVisibleOnly: true,
-			applicationServerKey: urlB64ToUint8Array(pubkey)
+			applicationServerKey: urlB64ToUint8(pubkey)
 		})
 		.catch(err => console.error('Fehler beim Abonnieren', err))
 		.then(subscription => {
