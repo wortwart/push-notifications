@@ -60,5 +60,5 @@ function urlB64ToUint8(b64String) {
     .replace(/_/g, '/');
   return new Uint8Array(atob(b64)
     .split('')
-    .map(el => el.charCodeAt(el)));
+    .map(el => el.charCodeAt(0)));
 }
