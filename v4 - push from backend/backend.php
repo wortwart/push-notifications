@@ -36,6 +36,7 @@
 	define('PUBKEY', file_get_contents('./pubkey.txt'));
 	define('PVTKEY', 'YourPrivateKey');
 
+	echo '<p><strong>Please check the user input data before copying and pasting them into your terminal!</strong></p>';
 	echo '<output>';
 	$result = $dbh->query('SELECT * FROM subscriptions');
 	while ($row = $result->fetchObject()) {
