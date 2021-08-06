@@ -13,7 +13,7 @@ if (count($_POST)) {
 $json = file_get_contents('php://input') or die('No data');
 $subscription = json_decode($json, false, 4, JSON_BIGINT_AS_STRING) or die('Invalid subscription');
 foreach ([$subscription->endpoint, $subscription->keys->p256dh, $subscription->keys->auth] as $val) {
-	if (!preg_match('/^[\w:\/.=-]+$/', $val)) die('Invalid subscription data');
+	if (!preg_match('/^[\w:\/.\?\%=-]+$/', $val)) die('Invalid subscription data');
 }
 if (!isset($subscription->expirationTime))
 	$subscription->expirationTime = null;
